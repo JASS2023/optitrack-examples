@@ -592,7 +592,7 @@ class NatNetClient:
 
 
 if __name__ == "__main__":
-    from time import sleep
+    from time import sleep, time
 
     optitrack = NatNetClient(server="192.168.0.66", dataPort=1511, commandPort=1510, verbose=False)
     optitrack.run()
@@ -604,10 +604,9 @@ if __name__ == "__main__":
             if not pose:
                 continue
             print(pose)
-          #  position = [pose.x, pose.y, pose.z]
-          #  orientation = [pose.roll, pose.pitch, pose.yaw]
-           # print(position)
-           # print(orientation)
+            position = [pose.x, pose.y, pose.z]
+            orientation = [pose.roll, pose.pitch, pose.yaw]
+            print(f"Got position: {position} and orientation: {orientation} at time: {time()}")
             sleep(0.1)
     except (KeyboardInterrupt, SystemExit):
         optitrack.stop()
