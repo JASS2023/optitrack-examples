@@ -6,8 +6,8 @@ from random import uniform
 import time
 
 # Define constants
-MQTT_BROKER = "192.168.0.213"  # Change this to your MQTT broker address
-MQTT_PORT = 30000
+MQTT_BROKER = "192.168.0.121"  # Change this to your MQTT broker address
+MQTT_PORT = 1883
 VEHICLE_ID = "vehicle/1234/status"  # Change this to the desired vehicle ID
 
 N_TILES_Y = 12
@@ -29,10 +29,7 @@ def generate_mock_data():
                 "yaw": uniform(0, 360), # grad vs rad?
                 "x_abs": uniform(0, N_TILES_X * TILE_LENGTH_MM),
                 "y_abs": uniform(0, N_TILES_Y * TILE_WIDTH_MM)
-            },
-            "battery": uniform(0, 100),
-            "speed": uniform(0, 100), # where to get that?
-            "state": "DRIVING"  # Change this to one of the possible state values
+            }
         }
     }
     return json.dumps(data)
