@@ -4,9 +4,10 @@ import uuid
 from datetime import datetime
 from random import uniform
 import time
+import math
 
 # Define constants
-MQTT_BROKER = "192.168.0.121"  # Change this to your MQTT broker address
+MQTT_BROKER = "localhost" # "192.168.0.121"  # Change this to your MQTT broker address
 MQTT_PORT = 1883
 VEHICLE_ID = "vehicle/1234/status"  # Change this to the desired vehicle ID
 
@@ -15,17 +16,22 @@ N_TILES_X = 13
 TILE_LENGTH_MM = 600
 TILE_WIDTH_MM = 600
 
+
 # Define function to generate mock data
-def generate_mock_data():
+def generate_mock_data(dt):
+    radius = 1
+    x = 5 + math.sin(dt)*radius
+    y = 5 + math.cos(dt)*radius
+
     data = {
         "type": "status_vehicle",
         "data": {
-            "id": str(uuid.uuid4()),
+            "id": str(12),
             "name": "My Vehicle",
             "timestamp": datetime.now().isoformat(),
             "coordinates": {
-                "x": uniform(0, N_TILES_X),
-                "y": uniform(0, N_TILES_Y),
+                "x": x,
+                "y": y,
                 "yaw": uniform(0, 360), # grad vs rad?
                 "x_abs": uniform(0, N_TILES_X * TILE_LENGTH_MM),
                 "y_abs": uniform(0, N_TILES_Y * TILE_WIDTH_MM)
@@ -46,6 +52,6 @@ client.connect(MQTT_BROKER, MQTT_PORT)
 # Publish mock data every 1 seconds
 while True:
     print("Publishing mock data...")
-    client.publish(VEHICLE_ID, generate_mock_data())
+    client.publish(VEHICLE_ID, generate_mock_data(time.time()))
     print("Done...")
     time.sleep(1)
