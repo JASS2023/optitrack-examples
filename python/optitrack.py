@@ -594,6 +594,9 @@ class NatNetClient:
         return [(body[0], Pose(body[1], body[2])) for body in self.rigidBodyList if body[3]]
 
 
+X_OFFSET = 6
+Y_OFFSET = 6
+
 if __name__ == "__main__":
     from time import sleep, time
 
@@ -608,7 +611,13 @@ if __name__ == "__main__":
                 id, pose = poses[0]
                 position = [pose.x, pose.y, pose.z]
                 orientation = [pose.roll, pose.pitch, pose.yaw]
-                print(f"Got position: {position} and orientation: {orientation} at time: {time()}")
+
+                # Convert to global city coordinate system
+                position[0] += X_OFFSET
+                position[1] += Y_OFFSET
+                yaw = (-pose.roll * 180 / math.pi + 270) % 360
+                
+                print(f"id: {id} - Got position: {position} and orientation: {yaw} at time: {time()}")
             
             sleep(0.1)
 
