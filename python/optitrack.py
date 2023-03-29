@@ -589,6 +589,9 @@ class NatNetClient:
                 # logging.info(f"Translation: {translation}")
                 # logging.info(f"Quaternion: {quaternion}")
                 return Pose(translation, quaternion)
+    
+    def get_all_states(self):
+        return [(body[0], Pose(body[1], body[2])) for body in self.rigidBodyList if body[3]]
 
 
 if __name__ == "__main__":
@@ -599,15 +602,24 @@ if __name__ == "__main__":
 
     try:
         while True:
-            pose = optitrack.get_state(body_id=1)
-
-            if not pose:
-                continue
-            print(pose)
-            position = [pose.x, pose.y, pose.z]
-            orientation = [pose.roll, pose.pitch, pose.yaw]
-            print(f"Got position: {position} and orientation: {orientation} at time: {time()}")
+            poses = optitrack.get_all_states()
+            print(f"Received {len(poses)} poses")
+            if len(poses) > 0:
+                id, pose = poses[0]
+                position = [pose.x, pose.y, pose.z]
+                orientation = [pose.roll, pose.pitch, pose.yaw]
+                print(f"Got position: {position} and orientation: {orientation} at time: {time()}")
+            
             sleep(0.1)
+
+            # pose = optitrack.get_state(body_id=1)
+            # if not pose:
+            #     continue
+            # print(pose)
+            # position = [pose.x, pose.y, pose.z]
+            # orientation = [pose.roll, pose.pitch, pose.yaw]
+            # print(f"Got position: {position} and orientation: {orientation} at time: {time()}")
+            # sleep(0.1)
     except (KeyboardInterrupt, SystemExit):
         optitrack.stop()
     except Exception as e:
