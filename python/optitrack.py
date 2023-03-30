@@ -597,8 +597,25 @@ class NatNetClient:
 X_OFFSET = 6
 Y_OFFSET = 6
 
+# Define constants
+MQTT_BROKER = "localhost" # "192.168.0.121"  # Change this to your MQTT broker address
+MQTT_PORT = 1883
+#VEHICLE_ID = "vehicle/+/status"  # Change this to the desired vehicle ID
+import paho.mqtt.client as mqtt
+import json
+
 if __name__ == "__main__":
     from time import sleep, time
+    from datetime import datetime
+
+    # Define callback function to handle MQTT connection
+    def on_connect(client, userdata, flags, rc):
+        print("Connected with result code "+str(rc))
+
+    # Define MQTT client and connect to broker
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.connect(MQTT_BROKER, MQTT_PORT)
 
     optitrack = NatNetClient(server="192.168.0.66", dataPort=1511, commandPort=1510, verbose=False)
     optitrack.run()
@@ -608,18 +625,36 @@ if __name__ == "__main__":
             poses = optitrack.get_all_states()
             print(f"Received {len(poses)} poses")
             if len(poses) > 0:
-                id, pose = poses[0]
-                position = [pose.x, pose.y, pose.z]
-                orientation = [pose.roll, pose.pitch, pose.yaw]
+                for id, pose in poses:
+                    position = [pose.y/0.6, pose.x/0.6, pose.z]
+                    orientation = [pose.roll, pose.pitch, pose.yaw]
 
-                # Convert to global city coordinate system
-                position[0] += X_OFFSET
-                position[1] += Y_OFFSET
-                yaw = (-pose.roll * 180 / math.pi + 270) % 360
-                
-                print(f"id: {id} - Got position: {position} and orientation: {yaw} at time: {time()}")
+                    # Convert to global city coordinate system
+                    position[0] += X_OFFSET
+                    position[1] += Y_OFFSET
+                    yaw = (-pose.roll * 180 / math.pi + 270) % 360
+                    
+                    #print(f"id: {id} - Got position: {position} and orientation: {yaw} at time: {time()}")
+
+                    data = {
+                        "type": "status_vehicle",
+                        "data": {
+                            "id": id,
+                            "name": "Duckie",
+                            "timestamp": datetime.now().isoformat(),
+                            "coordinates": {
+                                "x": position[0],
+                                "y": position[1],
+                                "yaw": yaw, # grad vs rad?
+                                "x_abs": pose.y,
+                                "y_abs": pose.x
+                            }
+                        }
+                    }
+
+                    client.publish(f"vehicle/{id}/status", json.dumps(data))
             
-            sleep(0.1)
+            sleep(0.05)
 
             # pose = optitrack.get_state(body_id=1)
             # if not pose:
