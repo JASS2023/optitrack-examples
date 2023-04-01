@@ -7,9 +7,9 @@ import time
 import math
 
 # Define constants
-MQTT_BROKER = "localhost" # "192.168.0.121"  # Change this to your MQTT broker address
+MQTT_BROKER = "192.168.0.223" # "192.168.0.121"  # Change this to your MQTT broker address
 MQTT_PORT = 1883
-VEHICLE_ID = "vehicle/1234/status"  # Change this to the desired vehicle ID
+VEHICLE_ID = "vehicle/db04/back"  # Change this to the desired vehicle ID
 
 N_TILES_Y = 12
 N_TILES_X = 13
@@ -24,21 +24,16 @@ def generate_mock_data(dt):
     y = 5 + math.cos(dt)*radius
 
     data = {
-        "type": "status_vehicle",
+        "type": "zone",
         "data": {
-            "id": str(12),
-            "name": "My Vehicle",
-            "timestamp": datetime.now().isoformat(),
-            "coordinates": {
-                "x": x,
-                "y": y,
-                "yaw": uniform(0, 360), # grad vs rad?
-                "x_abs": uniform(0, N_TILES_X * TILE_LENGTH_MM),
-                "y_abs": uniform(0, N_TILES_Y * TILE_WIDTH_MM)
-            }
-        }
+            "value": "inlkjhjhlhjh_zone"
+        }    
     }
-    return json.dumps(data)
+    actual = {
+        "data": json.dumps(data)
+    }
+
+    return json.dumps(actual)
 
 # Define callback function to handle MQTT connection
 def on_connect(client, userdata, flags, rc):
